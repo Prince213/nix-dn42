@@ -33,12 +33,20 @@
           };
       };
       perSystem =
-        { system, ... }:
+        { system, pkgs, ... }:
         {
           _module.args.pkgs = import nixpkgs {
             inherit system;
             config.allowUnfree = true;
             overlays = [ self.overlays.default ];
+          };
+
+          checks = {
+            inherit (pkgs) dn42_registry_wizard;
+          };
+
+          packages = {
+            inherit (pkgs) dn42_registry_wizard;
           };
 
           treefmt = {
