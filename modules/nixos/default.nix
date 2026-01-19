@@ -111,5 +111,26 @@ in
         }
       '';
     };
+
+    systemd.network = {
+      enable = true;
+      netdevs = {
+        "10-dn42-dummy" = {
+          netdevConfig = {
+            Name = "dn42-dummy";
+            Kind = "dummy";
+          };
+        };
+      };
+      networks = {
+        "10-dn42-dummy" = {
+          name = "dn42-dummy";
+          address = [
+            "${cfg.ipv4.address}/32"
+            "${cfg.ipv6.address}/128"
+          ];
+        };
+      };
+    };
   };
 }
