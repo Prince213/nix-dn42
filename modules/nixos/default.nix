@@ -163,7 +163,7 @@ in
           name = "dn42-dummy";
           address = [
             "${cfg.ipv4.address}/32"
-            "${cfg.ipv6.address}/128"
+            "${cfg.ipv6.address}/64"
           ];
         };
       };
