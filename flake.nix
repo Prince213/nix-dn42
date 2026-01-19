@@ -25,6 +25,7 @@
         treefmt-nix.flakeModule
       ];
       flake = {
+        nixosModules.default = ./modules/nixos;
         overlays.default =
           _: super:
           super.lib.packagesFromDirectoryRecursive {
