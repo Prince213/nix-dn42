@@ -15,6 +15,10 @@ let
   '';
 in
 {
+  imports = [
+    ./babel.nix
+  ];
+
   options.networking.dn42 = {
     enable = lib.mkEnableOption "DN42";
     asn = lib.mkOption {
