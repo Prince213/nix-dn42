@@ -131,9 +131,7 @@ in
               accept;
             };
 
-            export filter {
-              accept;
-            };
+            export where (source = RTS_STATIC) || (source = RTS_BGP);
           };
 
           ipv6 {
@@ -144,9 +142,7 @@ in
               accept;
             };
 
-            export filter {
-              accept;
-            };
+            export where (source = RTS_STATIC) || (source = RTS_BGP);
           };
         }
       '';
