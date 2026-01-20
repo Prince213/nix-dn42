@@ -8,5 +8,13 @@ in
   };
 
   config = lib.mkIf cfg.enable {
+    services.bird.config = ''
+      protocol direct {
+        ipv4;
+        ipv6;
+
+        interface "dn42-dummy";
+      }
+    '';
   };
 }
