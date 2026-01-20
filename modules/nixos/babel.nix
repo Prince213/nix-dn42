@@ -14,9 +14,14 @@ in
       default = 6696;
       description = "Port to use for Babel.";
     };
+    openFirewall = lib.mkEnableOption null // {
+      description = "Whether to open port in the firewall.";
+    };
   };
 
   config = lib.mkIf cfg.enable {
+    networking.firewall.allowedUDPPorts = lib.mkIf cfg.openFirewall [ cfg.port ];
+
     services.bird.config = ''
       protocol direct {
         ipv4;
