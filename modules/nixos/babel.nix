@@ -5,14 +5,27 @@ in
 {
   options.networking.dn42.babel = {
     enable = lib.mkEnableOption "Babel";
-    interface = lib.mkOption {
-      type = lib.types.str;
-      description = "Interface to use for Babel.";
-    };
-    port = lib.mkOption {
-      type = lib.types.port;
-      default = 6696;
-      description = "Port to use for Babel.";
+    interfaces = lib.mkOption {
+      description = "Interfaces to use for Babel.";
+      type = lib.types.attrsOf (
+        lib.types.submodule (
+          { name, ... }:
+          {
+            options = {
+              name = lib.mkOption {
+                type = lib.types.str;
+                description = "Name of the interface.";
+                default = name;
+              };
+              port = lib.mkOption {
+                type = lib.types.port;
+                default = 6696;
+                description = "Port to use for Babel.";
+              };
+            };
+          }
+        )
+      );
     };
     openFirewall = lib.mkEnableOption null // {
       description = "Whether to open port in the firewall.";
@@ -38,11 +51,17 @@ in
           export where (source = RTS_DEVICE) || (source = RTS_BABEL);
         };
 
-        interface "${cfg.interface}" {
-          type tunnel;
-          port ${toString cfg.port};
-          extended next hop on;
-        };
+        ${lib.concatMapAttrsStringSep "\n" (
+          _:
+          { name, port }:
+          ''
+            interface "${name}" {
+              type tunnel;
+              port ${toString port};
+              extended next hop on;
+            };
+          ''
+        ) cfg.interfaces}
       }
     '';
   };
