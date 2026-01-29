@@ -22,18 +22,20 @@ in
                 default = 6696;
                 description = "Port to use for Babel.";
               };
+              openFirewall = lib.mkEnableOption null // {
+                description = "Whether to open port in the firewall.";
+              };
             };
           }
         )
       );
     };
-    openFirewall = lib.mkEnableOption null // {
-      description = "Whether to open port in the firewall.";
-    };
   };
 
   config = lib.mkIf cfg.enable {
-    networking.firewall.allowedUDPPorts = lib.mkIf cfg.openFirewall [ cfg.port ];
+    networking.firewall.allowedUDPPorts = lib.concatMap (
+      { port, openFirewall, ... }: lib.optional openFirewall port
+    ) (lib.attrValues cfg.interfaces);
 
     services.bird.config = ''
       protocol direct {
