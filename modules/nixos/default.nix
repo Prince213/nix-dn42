@@ -122,6 +122,7 @@ in
           local as ${toString cfg.asn};
 
           ipv4 {
+            next hop self ebgp;
             extended next hop on;
 
             import filter {
@@ -135,6 +136,8 @@ in
           };
 
           ipv6 {
+            next hop self ebgp;
+
             import filter {
               ${lib.optionalString cfg.roa.enable ''
                 if roa_check(dn42_roa6) != ROA_VALID then reject;
