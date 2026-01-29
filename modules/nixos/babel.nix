@@ -1,6 +1,7 @@
 { config, lib, ... }:
 let
   cfg = config.networking.dn42.babel;
+  interfaces = lib.filterAttrs (_: { enable, ... }: enable) cfg.interfaces;
 in
 {
   options.networking.dn42.babel = {
@@ -12,6 +13,9 @@ in
           { name, ... }:
           {
             options = {
+              enable = lib.mkEnableOption "enable the interface" // {
+                default = true;
+              };
               name = lib.mkOption {
                 type = lib.types.str;
                 description = "Name of the interface.";
@@ -35,7 +39,7 @@ in
   config = lib.mkIf cfg.enable {
     networking.firewall.allowedUDPPorts = lib.concatMap (
       { port, openFirewall, ... }: lib.optional openFirewall port
-    ) (lib.attrValues cfg.interfaces);
+    ) (lib.attrValues interfaces);
 
     services.bird.config = ''
       protocol direct {
@@ -55,7 +59,7 @@ in
 
         ${lib.concatMapAttrsStringSep "\n" (
           _:
-          { name, port }:
+          { name, port, ... }:
           ''
             interface "${name}" {
               type tunnel;
@@ -63,7 +67,7 @@ in
               extended next hop on;
             };
           ''
-        ) cfg.interfaces}
+        ) interfaces}
       }
     '';
   };
