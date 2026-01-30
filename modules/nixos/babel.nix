@@ -51,10 +51,10 @@ in
 
       protocol babel {
         ipv4 {
-          export where (source = RTS_DEVICE) || (source = RTS_BABEL);
+          export where source ~ [ RTS_DEVICE, RTS_BABEL, RTS_BGP ];
         };
         ipv6 {
-          export where (source = RTS_DEVICE) || (source = RTS_BABEL);
+          export where source ~ [ RTS_DEVICE, RTS_BABEL, RTS_BGP ];
         };
 
         ${lib.concatMapAttrsStringSep "\n" (
