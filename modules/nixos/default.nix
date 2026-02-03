@@ -17,6 +17,7 @@ in
 {
   imports = [
     ./babel.nix
+    ./ospf.nix
   ];
 
   options.networking.dn42 = {
