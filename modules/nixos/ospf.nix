@@ -2,6 +2,7 @@
 let
   cfg = config.networking.dn42.ospf;
   interfaces = lib.filterAttrs (_: { enable, ... }: enable) cfg.interfaces;
+  openFirewall = lib.any ({ openFirewall, ... }: openFirewall) (lib.attrValues interfaces);
 in
 {
   options.networking.dn42.ospf = {
@@ -21,6 +22,9 @@ in
                 description = "Name of the interface.";
                 default = name;
               };
+              openFirewall = lib.mkEnableOption null // {
+                description = "Whether to open protocol in the firewall.";
+              };
             };
           }
         )
@@ -29,6 +33,11 @@ in
   };
 
   config = lib.mkIf cfg.enable {
+    networking.firewall.extraInputRules = lib.optionalString openFirewall ''
+      ip protocol ospfigp accept;
+      ip6 nexthdr ospfigp accept;
+    '';
+
     services.bird.config = ''
       protocol ospf v2 ospfv2 {
         ipv4 {
