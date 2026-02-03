@@ -46,6 +46,26 @@ in
           ) interfaces}
         };
       }
+
+      protocol ospf v3 ospfv3 {
+        rfc5838 off;
+        ipv6 {
+          export where source ~ [ RTS_DEVICE, RTS_OSPF, RTS_BGP ];
+        };
+        area 0 {
+          interface "dn42-dummy" { stub yes; };
+
+          ${lib.concatMapAttrsStringSep "\n" (
+            _:
+            { name, ... }:
+            ''
+              interface "${name}" {
+                type ptp;
+              };
+            ''
+          ) interfaces}
+        };
+      }
     '';
   };
 }
