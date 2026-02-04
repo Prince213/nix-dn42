@@ -76,5 +76,31 @@ in
         };
       }
     '';
+
+    services.frr.config = ''
+      interface dn42-dummy
+        ip ospf area 0
+        ip ospf passive
+        ipv6 ospf6 area 0
+      exit
+
+      ${lib.concatMapAttrsStringSep "\n" (
+        _:
+        { name, ... }:
+        ''
+          interface ${name}
+            ip ospf area 0
+            ip ospf network point-to-point
+            ipv6 ospf6 area 0
+          exit
+        ''
+      ) interfaces}
+
+      router ospf
+      exit
+
+      router ospf6
+      exit
+    '';
   };
 }
