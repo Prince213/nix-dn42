@@ -62,7 +62,6 @@ in
 
   config = lib.mkIf cfg.enable {
     services.bird = {
-      enable = true;
       config = lib.mkBefore ''
         router id ${cfg.routerId};
 
