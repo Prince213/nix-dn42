@@ -149,6 +149,10 @@ in
       '';
     };
 
+    services.frr.config = ''
+      ip router-id ${cfg.routerId}
+    '';
+
     systemd.network = {
       enable = true;
       netdevs = {
