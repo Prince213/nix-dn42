@@ -46,12 +46,10 @@ in
         description = "The IPv6 address space.";
       };
     };
-    bird = {
-      routerId = lib.mkOption {
-        type = lib.types.str;
-        default = cfg.ipv4.address;
-        description = "The router ID to use for BIRD.";
-      };
+    routerId = lib.mkOption {
+      type = lib.types.str;
+      default = cfg.ipv4.address;
+      description = "The router ID to use.";
     };
     roa = {
       enable = lib.mkEnableOption "ROA checks";
@@ -66,7 +64,7 @@ in
     services.bird = {
       enable = true;
       config = lib.mkBefore ''
-        router id ${cfg.bird.routerId};
+        router id ${cfg.routerId};
 
         protocol device {
           scan time 10;
