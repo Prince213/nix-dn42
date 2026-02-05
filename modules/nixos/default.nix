@@ -43,37 +43,35 @@ in
   };
 
   config = lib.mkIf cfg.enable {
-    services.bird = {
-      config = lib.mkBefore ''
-        router id ${cfg.routerId};
+    services.bird.config = lib.mkBefore ''
+      router id ${cfg.routerId};
 
-        protocol device {
-          scan time 10;
-        }
+      protocol device {
+        scan time 10;
+      }
 
-        protocol kernel {
-          ipv4 {
-            import none;
-            export filter {
-              if source = RTS_STATIC then reject;
-              krt_prefsrc = ${cfg.ipv4.address};
-              accept;
-            };
+      protocol kernel {
+        ipv4 {
+          import none;
+          export filter {
+            if source = RTS_STATIC then reject;
+            krt_prefsrc = ${cfg.ipv4.address};
+            accept;
           };
-        }
+        };
+      }
 
-        protocol kernel {
-          ipv6 {
-            import none;
-            export filter {
-              if source = RTS_STATIC then reject;
-              krt_prefsrc = ${cfg.ipv6.address};
-              accept;
-            };
+      protocol kernel {
+        ipv6 {
+          import none;
+          export filter {
+            if source = RTS_STATIC then reject;
+            krt_prefsrc = ${cfg.ipv6.address};
+            accept;
           };
-        }
-      '';
-    };
+        };
+      }
+    '';
 
     services.frr.config = ''
       ip router-id ${cfg.routerId}

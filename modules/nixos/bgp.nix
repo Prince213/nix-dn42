@@ -26,64 +26,62 @@ in
   };
 
   config = lib.mkIf cfg.enable {
-    services.bird = {
-      config = lib.mkBefore ''
-        protocol static {
-          route ${cfg.ipv4.pool} unreachable;
-          ipv4;
-        }
+    services.bird.config = lib.mkBefore ''
+      protocol static {
+        route ${cfg.ipv4.pool} unreachable;
+        ipv4;
+      }
+
+      protocol static {
+        route ${cfg.ipv6.pool} unreachable;
+        ipv6;
+      }
+
+      ${lib.optionalString cfg.roa.enable ''
+        roa4 table dn42_roa4;
+        roa6 table dn42_roa6;
 
         protocol static {
-          route ${cfg.ipv6.pool} unreachable;
-          ipv6;
+          roa4 { table dn42_roa4; };
+          include "${roa}/dn42_roa4.conf";
         }
 
-        ${lib.optionalString cfg.roa.enable ''
-          roa4 table dn42_roa4;
-          roa6 table dn42_roa6;
-
-          protocol static {
-            roa4 { table dn42_roa4; };
-            include "${roa}/dn42_roa4.conf";
-          }
-
-          protocol static {
-            roa6 { table dn42_roa6; };
-            include "${roa}/dn42_roa6.conf";
-          }
-        ''}
-
-        template bgp dn42_peer {
-          local as ${toString cfg.asn};
-
-          ipv4 {
-            next hop self ebgp;
-            extended next hop on;
-
-            import filter {
-              ${lib.optionalString cfg.roa.enable ''
-                if roa_check(dn42_roa4) != ROA_VALID then reject;
-              ''}
-              accept;
-            };
-
-            export where (source = RTS_STATIC) || (source = RTS_BGP);
-          };
-
-          ipv6 {
-            next hop self ebgp;
-
-            import filter {
-              ${lib.optionalString cfg.roa.enable ''
-                if roa_check(dn42_roa6) != ROA_VALID then reject;
-              ''}
-              accept;
-            };
-
-            export where (source = RTS_STATIC) || (source = RTS_BGP);
-          };
+        protocol static {
+          roa6 { table dn42_roa6; };
+          include "${roa}/dn42_roa6.conf";
         }
-      '';
-    };
+      ''}
+
+      template bgp dn42_peer {
+        local as ${toString cfg.asn};
+
+        ipv4 {
+          next hop self ebgp;
+          extended next hop on;
+
+          import filter {
+            ${lib.optionalString cfg.roa.enable ''
+              if roa_check(dn42_roa4) != ROA_VALID then reject;
+            ''}
+            accept;
+          };
+
+          export where (source = RTS_STATIC) || (source = RTS_BGP);
+        };
+
+        ipv6 {
+          next hop self ebgp;
+
+          import filter {
+            ${lib.optionalString cfg.roa.enable ''
+              if roa_check(dn42_roa6) != ROA_VALID then reject;
+            ''}
+            accept;
+          };
+
+          export where (source = RTS_STATIC) || (source = RTS_BGP);
+        };
+      }
+    '';
   };
 }
