@@ -83,5 +83,17 @@ in
         };
       }
     '';
+
+    services.frr.config = lib.mkBefore ''
+      router bgp ${toString cfg.asn}
+        address-family ipv4 unicast
+          network ${cfg.ipv4.pool}
+        exit-address-family
+
+        address-family ipv6 unicast
+          network ${cfg.ipv6.pool}
+        exit-address-family
+      exit
+    '';
   };
 }
